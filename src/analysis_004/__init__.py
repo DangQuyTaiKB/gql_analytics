@@ -92,6 +92,7 @@ from ..utils import process_df_as_html_page
 import json
 import re
 import io
+import datetime
 
 def createRouter(prefix):
     mainpath = "/presence"
@@ -136,13 +137,16 @@ def createRouter(prefix):
     async def user_classification_json(
         request: Request, 
         where: str = Query(description=WhereDescription), 
+        startdate: datetime.datetime = Query(description=""),
+        enddate: datetime.datetime = Query(description="")
     ):
         "Data ve formátu JSON (stromová struktura) nevhodná pro kontingenční tabulku"
         wherevalue = None if where is None else re.sub(r'{([^:"]*):', r'{"\1":', where) 
         wherejson = json.loads(wherevalue)
         pd = await resolve_json(
             variables={
-                "where": wherejson
+                "where": wherejson,
+                "startdate": f"{startdate}",
             },
             cookies=request.cookies
         )
